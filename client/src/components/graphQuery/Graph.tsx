@@ -58,59 +58,11 @@ const Graph = () => {
             edges: {
                 smooth: false
             },
-            interaction: {hover: true},
-            manipulation: {
-                enabled: false,
-                // @ts-ignore
-                addNode: function (data, callback) {
-                    console.log('add', data)
-
-                    data.label = "Новая вершина"
-
-                    const node: INode = {
-                        id: data.id,
-                        label: data.label,
-                        property: []
-
-                    }
-                    // @ts-ignore
-                    dispatch(addNode(node))
-                    callback(data);
-                    // @ts-ignore
-                    network.disableEditMode()
-                },
-                // @ts-ignore
-                editNode: function (data, callback) {
-                    // filling in the popup DOM elements
-                    console.log('edit', data);
-                    data.label = labelNode
-                    callback(data);
-                    // @ts-ignore
-                    network.disableEditMode()
-                },
-                // @ts-ignore
-                addEdge: function (data, callback) {
-                    console.log('add edge', data)
-
-                    const id = Math.random() * 1000
-                    const edge: Edge = {
-                        id: id,
-                        from: data.from,
-                        to: data.to
-                    }
-
-                    // @ts-ignore
-                    dispatch(addEdge(edge))
-                    callback(data)
-                    // @ts-ignore
-                    network.disableEditMode()
-                }
-            },
+            interaction: {hover: true}
         }
 
         // @ts-ignore
         setNetwork(new Network(container, data, options))
-        console.log("присвоение network", network)
 
     }, []);
 
@@ -119,6 +71,7 @@ const Graph = () => {
         console.log("111", network)
 
         if(network != null) {
+            const networkNew = network as Network
             console.log("2222")
 
             const options = {
@@ -147,23 +100,28 @@ const Graph = () => {
                         }
                         // @ts-ignore
                         dispatch(addNode(node))
-                        callback(data);
-                        // @ts-ignore
-                        network.disableEditMode()
+                        callback(data)
+
+                        networkNew.disableEditMode()
                     },
                     // @ts-ignore
                     editNode: function (data, callback) {
-                        // filling in the popup DOM elements
-                        console.log('edit', data);
                         data.label = labelNode
                         callback(data);
-                        // @ts-ignore
-                        network.disableEditMode()
+
+                        console.log("000000")
+
+                        networkNew.disableEditMode()
+                    },
+                    // @ts-ignore
+                    editEdge: function (data, callback) {
+                        data.label = labelNode
+                        callback(data);
+
+                        networkNew.disableEditMode()
                     },
                     // @ts-ignore
                     addEdge: function (data, callback) {
-                        console.log('add edge', data)
-
                         const id = Math.random() * 1000
                         const edge: Edge = {
                             id: id,
@@ -174,20 +132,14 @@ const Graph = () => {
                         // @ts-ignore
                         dispatch(addEdge(edge))
                         callback(data)
-                        // @ts-ignore
-                        network.disableEditMode()
+
+                        networkNew.disableEditMode()
                     }
                 },
             }
 
-            // @ts-ignore
-            network.setOptions(options)
-
-
-
-
-            // @ts-ignore
-            network.on('click', event => {
+            networkNew.off('click')
+            networkNew.on('click', event => {
 
                 switch (typeOperation) {
                     case "none":
@@ -195,15 +147,13 @@ const Graph = () => {
 
                     case "addSearch":
                         if (event.nodes.length == 0) {
-                            // @ts-ignore
-                            network.addNodeMode()
+                            networkNew.addNodeMode()
                         }
                         break
 
                     case "addData":
                         if (event.nodes.length == 0) {
-                            // @ts-ignore
-                            network.addNodeMode()
+                            networkNew.addNodeMode()
                         }
                         break
                     default:
@@ -213,45 +163,66 @@ const Graph = () => {
 
             })
 
-
-            // @ts-ignore
-            network.on("selectNode", params => {
+            networkNew.off('selectEdge')
+            networkNew.on("selectEdge", params => {
 
                 switch (typeOperation) {
                     case "none":
+                        console.log(typeOperation)
                         break
 
-                    case "editNode":
-                        // @ts-ignore
-                        network.editNode()
-                        break
-
-                    case "addEdge":
-                        // @ts-ignore
-                        network.addEdgeMode()
+                    case "editEdge":
+                        console.log(typeOperation)
                         break
 
                     default:
+                        break
+
+                }
+            })
+
+            networkNew.off('selectNode')
+            networkNew.on("selectNode", params => {
+
+                switch (typeOperation) {
+                    case "none":
+                        console.log(typeOperation)
                         const id = params.nodes[0]
                         dispatch(switchNodeInfo(id))
                         break
+
+                    case "editNode":
+                        console.log(typeOperation)
+                        networkNew.editNode()
+                        break
+
+                    case "addEdge":
+                        networkNew.addEdgeMode()
+                        break
+
+                    default:
+                        break
                 }
-
-
             })
-        }
-    });
 
+            networkNew.setOptions(options)
+
+        }
+    })
+
+    {/*TODO: доделать запрос*/}
     return (
         <div>
             <MuRadioButton type={typeOperation} onChange={(str) => {
                 changeTypeOperation(str)
             }}></MuRadioButton>
 
+
             <MyInput placeholder={"Имя вершины"} value={labelNode} onChange={(str)=>{
                 setLabelNode(str)
             }
             }/>
+
 
             <MyButton description={"Выполнить запрос"} onClick={async () => {
                 const pageable: Pageable = {
