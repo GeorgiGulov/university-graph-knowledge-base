@@ -31,6 +31,16 @@ const MuRadioButton: FC<MuRadioButtonProps> = (props) => {
             </div>
 
             <div style={{display: "flex"}}>
+                <input type="radio" name="radio" value="Редактировать имя ребра"
+                       checked={type == 'editEdge'}
+                       onChange={() => {
+                           props.onChange('editEdge')
+                           setType('editEdge')
+                       }}/>
+                <div>Редактировать имя ребра</div>
+            </div>
+
+            <div style={{display: "flex"}}>
                 <input type="radio" name="radio" value="Добавить поисковую вершину"
                        checked={type == 'addSearch'}
                        onChange={() => {

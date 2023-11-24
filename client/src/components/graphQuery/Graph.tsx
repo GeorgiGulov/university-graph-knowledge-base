@@ -78,10 +78,16 @@ const Graph = () => {
                 width: "600px",
                 height: "600px",
                 nodes: {
-                    shape: 'dot'
+                    shape: 'dot',
                 },
                 edges: {
-                    smooth: false
+                    font: {
+                        align: "top"
+                    },
+                    smooth: true, //сгибающиеся или прямые ребра
+                    arrows: {
+                        to: { enabled: true, scaleFactor: 1, type: "arrow" }
+                    }
                 },
                 interaction: {hover: true},
                 manipulation: {
@@ -90,7 +96,7 @@ const Graph = () => {
                     addNode: function (data, callback) {
                         console.log('add', data)
 
-                        data.label = "Новая вершина"
+                        data.label = "Пустая вершина"
 
                         const node: INode = {
                             id: data.id,
@@ -108,16 +114,12 @@ const Graph = () => {
                     editNode: function (data, callback) {
                         data.label = labelNode
                         callback(data);
-
-                        console.log("000000")
-
                         networkNew.disableEditMode()
                     },
                     // @ts-ignore
                     editEdge: function (data, callback) {
                         data.label = labelNode
                         callback(data);
-
                         networkNew.disableEditMode()
                     },
                     // @ts-ignore
@@ -173,6 +175,7 @@ const Graph = () => {
 
                     case "editEdge":
                         console.log(typeOperation)
+                        networkNew.editEdgeMode()
                         break
 
                     default:
