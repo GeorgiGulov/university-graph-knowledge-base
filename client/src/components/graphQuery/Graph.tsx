@@ -13,6 +13,7 @@ import {IEdge} from "../../entity/graphQuery/IEdge";
 import MyButton from "../UI/MyButton";
 import {Pageable, queryApi, QueryExecute} from "../../services/QueryService";
 import {GraphQueryDto} from "../../dto/queryDto/GraphQueryDto";
+import MyInput from "../UI/MyInput";
 
 let typeOperation = "none"
 
@@ -27,6 +28,8 @@ const Graph = () => {
     const switchNodeInfo = nodeInfoSlice.actions.switchNodeInfo
     const listNodes = useAppSelector(state => state.graphReducer.nodes)
     const listEdges = useAppSelector(state => state.graphReducer.edges)
+
+    const [labelNode, setLabelNode] = useState("")
 
     const dispatch = useAppDispatch()
 
@@ -85,6 +88,9 @@ const Graph = () => {
                 editNode: function (data, callback) {
                     // filling in the popup DOM elements
                     console.log('edit', data);
+                    data.label = labelNode
+                    callback(data);
+                    network.disableEditMode()
                 },
                 // @ts-ignore
                 addEdge: function (data, callback) {
@@ -103,11 +109,11 @@ const Graph = () => {
                     network.disableEditMode()
                 }
             },
-        };
+        }
 
 
         // @ts-ignore
-        const network = new Network(container, data, options);
+        const network = new Network(container, data, options)
 
         network.on('click', event => {
 
@@ -137,6 +143,11 @@ const Graph = () => {
         network.on("selectNode", params => {
 
             switch (typeOperation) {
+                case "none":
+                    console.log('click to node', params)
+                    network.editNode()
+                    break
+
                 case "addEdge":
                     network.addEdgeMode()
                     break
@@ -159,6 +170,11 @@ const Graph = () => {
             <MuRadioButton type={typeOperation} onChange={(str) => {
                 changeTypeOperation(str)
             }}></MuRadioButton>
+
+            <MyInput placeholder={"Имя вершины"} value={labelNode} onChange={(str)=>{
+                setLabelNode(str)
+            }
+            }/>
 
             <MyButton description={"Выполнить запрос"} onClick={async () => {
                 const pageable: Pageable = {
