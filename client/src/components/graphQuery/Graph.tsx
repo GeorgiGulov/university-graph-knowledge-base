@@ -3,7 +3,7 @@ import {Network} from "vis-network/peer/esm/vis-network";
 import {DataSet} from "vis-data/peer/esm/vis-data";
 import {Edge} from "vis-network/declarations/network/Network";
 import {useAppDispatch, useAppSelector} from "../../hooks/redux";
-import {graphSlice} from "../../store/reducers/GraphSlice";
+import {graphSlice, IChangeElementLabel} from "../../store/reducers/GraphSlice";
 import {nodeInfoSlice} from "../../store/reducers/NodeInfoSlice";
 import MuRadioButton from "../UI/MuRadioButton";
 import {INode} from "../../entity/graphQuery/INode";
@@ -16,11 +16,15 @@ const Graph = () => {
 
     const addNode = graphSlice.actions.addNode
     const addEdge = graphSlice.actions.addEdge
+    const changeLabelNode = graphSlice.actions.changeLabelNode
+    const changeLabelEdge = graphSlice.actions.changeLabelEdge
+
+
     const switchNodeInfo = nodeInfoSlice.actions.switchNodeInfo
     const listNodes = useAppSelector(state => state.graphReducer.nodes)
     const listEdges = useAppSelector(state => state.graphReducer.edges)
 
-    const [labelNode, setLabelNode] = useState("")
+    const [labelElement, setLabelElement] = useState("")
     const [typeOperation, changeTypeOperation] = useState("none")
     const [network, setNetwork] = useState(null)
 
@@ -112,14 +116,28 @@ const Graph = () => {
                     },
                     // @ts-ignore
                     editNode: function (data, callback) {
-                        data.label = labelNode
-                        callback(data);
+                        data.label = labelElement
+                        callback(data)
+
+                        const changeLabel: IChangeElementLabel = {
+                            id: data.id,
+                            label: labelElement
+                        }
+
+                        dispatch(changeLabelNode(changeLabel))
                         networkNew.disableEditMode()
                     },
                     // @ts-ignore
                     editEdge: function (data, callback) {
-                        data.label = labelNode
-                        callback(data);
+                        data.label = labelElement
+                        callback(data)
+
+                        const changeLabel: IChangeElementLabel = {
+                            id: data.id,
+                            label: labelElement
+                        }
+
+                        dispatch(changeLabelEdge(changeLabel))
                         networkNew.disableEditMode()
                     },
                     // @ts-ignore
@@ -221,8 +239,8 @@ const Graph = () => {
             }}></MuRadioButton>
 
 
-            <MyInput placeholder={"Имя вершины"} value={labelNode} onChange={(str)=>{
-                setLabelNode(str)
+            <MyInput placeholder={"Имя вершины"} value={labelElement} onChange={(str)=>{
+                setLabelElement(str)
             }
             }/>
 

@@ -100,6 +100,12 @@ const initState: IGraph = {
     ]
 }
 
+
+export interface IChangeElementLabel {
+    id: number,
+    label: string
+}
+
 export const graphSlice = createSlice({
     name: 'queryGraph',
     initialState: initState,
@@ -107,6 +113,22 @@ export const graphSlice = createSlice({
         addNode(state, action: PayloadAction<INode>) {
             state.nodes = state.nodes.concat(action.payload)
 
+        },
+        changeLabelNode(state, action: PayloadAction<IChangeElementLabel>) {
+            state.nodes.map((node)=>{
+                if(node.id == action.payload.id) {
+                    node.label = action.payload.label
+                }
+                return node
+            })
+        },
+        changeLabelEdge(state, action: PayloadAction<IChangeElementLabel>) {
+            state.edges.map((edge)=>{
+                if(edge.id == action.payload.id) {
+                    edge.label = action.payload.label
+                }
+                return edge
+            })
         },
         changeNode(state, action: PayloadAction<INode>) {
             const newNode = action.payload
