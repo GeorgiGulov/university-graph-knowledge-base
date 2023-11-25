@@ -23,6 +23,8 @@ const Graph = () => {
 
     const addNode = graphSlice.actions.addNode
     const addEdge = graphSlice.actions.addEdge
+    const deleteEdge = graphSlice.actions.deleteEdge
+    const deleteNode = graphSlice.actions.deleteNode
     const setGraph = graphSlice.actions.setGraph
 
     const changeLabelNode = graphSlice.actions.changeLabelNode
@@ -82,11 +84,11 @@ const Graph = () => {
 
 
     useEffect(() => {
-        console.log("111", network)
+        console.log("useEffect1", network)
 
         if (network != null) {
+            console.log("useEffect2", network)
             const networkNew = network as Network
-            console.log("2222")
 
             const options = {
                 width: "600px",
@@ -121,7 +123,6 @@ const Graph = () => {
                         // @ts-ignore
                         dispatch(addNode(node))
                         callback(data)
-
                         networkNew.disableEditMode()
                     },
                     // @ts-ignore
@@ -152,7 +153,8 @@ const Graph = () => {
                     },
                     // @ts-ignore
                     addEdge: function (data, callback) {
-                        const id = Math.random() * 1000
+
+                        const id = crypto.randomUUID().toString()
                         const edge: Edge = {
                             id: id,
                             from: data.from,
@@ -161,6 +163,7 @@ const Graph = () => {
 
                         // @ts-ignore
                         dispatch(addEdge(edge))
+                        data.id = id
                         callback(data)
 
                         networkNew.disableEditMode()
@@ -195,15 +198,21 @@ const Graph = () => {
 
             networkNew.off('selectEdge')
             networkNew.on("selectEdge", params => {
+                console.log("selectEdge", typeOperation)
 
                 switch (typeOperation) {
                     case "none":
-                        console.log(typeOperation)
                         break
 
                     case "editEdge":
-                        console.log(typeOperation)
+                        console.log(params)
                         networkNew.editEdgeMode()
+                        break
+
+                    case "deleteEdge":
+                        const edgeId: string = params.edges[0]
+                        dispatch(deleteEdge(edgeId))
+                        networkNew.deleteSelected()
                         break
 
                     default:
@@ -214,21 +223,31 @@ const Graph = () => {
 
             networkNew.off('selectNode')
             networkNew.on("selectNode", params => {
+                console.log("selectNode", typeOperation)
 
                 switch (typeOperation) {
                     case "none":
-                        console.log(typeOperation)
                         const id = params.nodes[0]
                         dispatch(switchNodeInfo(id))
                         break
 
                     case "editNode":
-                        console.log(typeOperation)
                         networkNew.editNode()
                         break
 
                     case "addEdge":
                         networkNew.addEdgeMode()
+                        break
+
+                    case "deleteNode":
+                        const nodeId: string = params.nodes[0]
+                        const edgesId: string[] = params.edges
+
+                        edgesId.forEach((edgeId)=>{
+                            dispatch(deleteEdge(edgeId))
+                        })
+                        dispatch(deleteNode(nodeId))
+                        networkNew.deleteSelected()
                         break
 
                     default:

@@ -70,6 +70,26 @@ const MuRadioButton: FC<MuRadioButtonProps> = (props) => {
                 <div>Добавить вершину с данными</div>
             </div>
 
+            <div style={{display: "flex"}}>
+                <input type="radio" name="radio" value="Удалить вершину"
+                       checked={type == 'deleteNode'}
+                       onChange={() => {
+                           props.onChange('deleteNode')
+                           setType('deleteNode')
+                       }}/>
+                <div>Удалить вершину</div>
+            </div>
+
+            <div style={{display: "flex"}}>
+                <input type="radio" name="radio" value="Удалить ребро"
+                       checked={type == 'deleteEdge'}
+                       onChange={() => {
+                           props.onChange('deleteEdge')
+                           setType('deleteEdge')
+                       }}/>
+                <div>Удалить ребро</div>
+            </div>
+
         </div>
     );
 };

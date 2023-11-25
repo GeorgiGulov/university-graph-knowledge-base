@@ -57,19 +57,35 @@ export const graphSlice = createSlice({
             })
         },
         changeLabelEdge(state, action: PayloadAction<IChangeElementLabel>) {
+
+            console.log(action.payload)
+
             state.edges.map((edge)=>{
+                console.log(edge)
+
                 if(edge.id == action.payload.id) {
                     edge.label = action.payload.label
                 }
                 return edge
             })
+            console.log(state.edges)
+            return state
         },
         changeNode(state, action: PayloadAction<INode>) {
             const newNode = action.payload
             state.nodes = [...state.nodes.filter((it) => it.id != newNode.id)].concat(newNode)
         },
         addEdge(state, action: PayloadAction<IEdge>) {
+            console.log("addEdge", action.payload)
             state.edges = state.edges.concat(action.payload)
+
+        },
+        deleteNode(state, action: PayloadAction<string>) {
+            state.nodes = state.nodes.filter((node)=> node.id != action.payload)
+
+        },
+        deleteEdge(state, action: PayloadAction<string>) {
+            state.edges = state.edges.filter((edge)=> edge.id != action.payload)
 
         }
     }
