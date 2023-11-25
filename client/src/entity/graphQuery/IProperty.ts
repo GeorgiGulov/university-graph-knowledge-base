@@ -1,6 +1,6 @@
 
 export interface IProperty {
-    id: number
+    id: string
     label: string,
     value: string
 }

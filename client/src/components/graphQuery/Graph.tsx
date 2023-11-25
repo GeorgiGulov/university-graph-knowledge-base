@@ -11,11 +11,20 @@ import MyButton from "../UI/MyButton";
 import {Pageable, queryApi, QueryExecute} from "../../services/QueryService";
 import {GraphQueryDto} from "../../dto/queryDto/GraphQueryDto";
 import MyInput from "../UI/MyInput";
+import {NodeQueryDto} from "../../dto/queryDto/NodeQueryDto";
+import {PropertyQueryDto} from "../../dto/queryDto/PropertQueryDto";
+import {EdgeQueryDto} from "../../dto/queryDto/EdgeQueryDto";
+import {GraphDataDto} from "../../dto/graphDto/GraphDataDto";
+import {IProperty} from "../../entity/graphQuery/IProperty";
+import {IEdge} from "../../entity/graphQuery/IEdge";
+import {IGraph} from "../../entity/graphQuery/IGraph";
 
 const Graph = () => {
 
     const addNode = graphSlice.actions.addNode
     const addEdge = graphSlice.actions.addEdge
+    const setGraph = graphSlice.actions.setGraph
+
     const changeLabelNode = graphSlice.actions.changeLabelNode
     const changeLabelEdge = graphSlice.actions.changeLabelEdge
 
@@ -31,6 +40,7 @@ const Graph = () => {
 
     const dispatch = useAppDispatch()
     const [getQuery] = queryApi.useFetchGraphQueryMutation()
+
 
 
     useEffect(() => {
@@ -74,7 +84,7 @@ const Graph = () => {
     useEffect(() => {
         console.log("111", network)
 
-        if(network != null) {
+        if (network != null) {
             const networkNew = network as Network
             console.log("2222")
 
@@ -90,7 +100,7 @@ const Graph = () => {
                     },
                     smooth: true, //сгибающиеся или прямые ребра
                     arrows: {
-                        to: { enabled: true, scaleFactor: 1, type: "arrow" }
+                        to: {enabled: true, scaleFactor: 1, type: "arrow"}
                     }
                 },
                 interaction: {hover: true},
@@ -231,7 +241,8 @@ const Graph = () => {
         }
     })
 
-    {/*TODO: доделать запрос*/}
+    {/*TODO: доделать запрос*/
+    }
     return (
         <div>
             <MuRadioButton type={typeOperation} onChange={(str) => {
@@ -239,7 +250,7 @@ const Graph = () => {
             }}></MuRadioButton>
 
 
-            <MyInput placeholder={"Имя вершины"} value={labelElement} onChange={(str)=>{
+            <MyInput placeholder={"Имя вершины"} value={labelElement} onChange={(str) => {
                 setLabelElement(str)
             }
             }/>
@@ -251,9 +262,45 @@ const Graph = () => {
                     numberPage: 1
                 }
 
+                const nodes: NodeQueryDto[] = listNodes.map((nodeReducer) => {
+                    const node: NodeQueryDto = {
+                        id: nodeReducer.id,
+                        label: nodeReducer.label,
+                        properties: nodeReducer.property.map((propertyReducer) => {
+                            const propertyQueryDto: PropertyQueryDto = {
+                                id: propertyReducer.id,
+                                label: propertyReducer.label,
+                                value: propertyReducer.value
+                            }
+                            return propertyQueryDto
+                        })
+                    }
+                    return node
+                })
+
+                const edges = listEdges.map((edgeReducer) => {
+
+                    const sourceNode = nodes.find((node) => node.id == edgeReducer.from)
+                    const targetNode = nodes.find((node) => node.id == edgeReducer.to)
+
+                    if (sourceNode != undefined && targetNode != undefined) {
+                        const edge: EdgeQueryDto = {
+                            id: edgeReducer.id,
+                            label: edgeReducer.label,
+                            properties: [],
+                            sourceNode: sourceNode,
+                            targetNode: targetNode
+                        }
+
+                        return edge
+                    } else {
+                        return null
+                    }
+                }).filter((edge) => edge !== null && edge !== undefined)
+
                 const queryGraph: GraphQueryDto = {
-                    nodes: [],
-                    edges: []
+                    nodes: nodes,
+                    edges: edges as EdgeQueryDto[]
                 }
 
                 const query = {
@@ -261,7 +308,76 @@ const Graph = () => {
                     pageable: pageable
                 } as QueryExecute
 
-                await getQuery(query)
+                let graphDto: GraphDataDto | null = null
+
+                try {
+                    const data  = await getQuery(query)
+
+                    // @ts-ignore
+                    graphDto = data.data
+                }catch (e) {
+                    console.log("Ошибка при получении ответа на графовый запрос")
+                }
+
+                if(graphDto != null) {
+                    const newNode = graphDto.nodes.map((node)=> {
+                        const nodeReducer: INode = {
+                            id: node.id,
+                            label: node.label,
+                            property: node.properties.map((propertyDto)=>{
+                                const property: IProperty = {
+                                    id: propertyDto.id,
+                                    label: propertyDto.label,
+                                    value: propertyDto.value
+                                }
+                                return property
+                            })
+                        }
+                        return nodeReducer
+                    })
+
+                    const newEdge = graphDto.edges.map((edge)=> {
+                        const edgeReducer: IEdge = {
+                            id: edge.id,
+                            label: edge.label,
+                            from: edge.sourceNode.id,
+                            to: edge.targetNode.id,
+                        }
+                        return edgeReducer
+                    })
+
+
+                    console.log(newNode)
+                    console.log(newEdge)
+
+                    const graph: IGraph = {
+                        nodes: newNode,
+                        edges: newEdge,
+                    }
+
+                    if(network != null) {
+
+                        const nodes = new DataSet([
+                            ...newNode
+                        ]);
+
+                        const edges = new DataSet([
+                            ...newEdge
+                        ]);
+
+                        const data = {
+                            nodes,
+                            edges
+                        }
+
+                        const newNetwork = network as Network
+                        newNetwork.setData(data)
+                        dispatch(setGraph(graph))
+                    }
+
+
+
+                }
 
             }}/>
 

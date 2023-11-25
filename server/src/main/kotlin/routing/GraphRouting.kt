@@ -36,39 +36,6 @@ fun Application.graphRouting() {
 
     routing {
 
-
-        get("/rrGraph") {
-
-
-            val node1 = NodeData(
-                label = "Студент",
-                properties = listOf()
-            )
-
-            val node2 = NodeData(
-                label = "Предмет",
-                properties = listOf(
-                    PropertyData("Название", "Философия")
-                )
-            )
-
-            val edge1 = EdgeData(
-                label = "изучает",
-                sourceNode = node1,
-                targetNode = node2,
-                properties = listOf()
-            )
-
-
-            val newGraph = GraphData(
-                nodes = listOf(node1, node2),
-                edges = listOf(edge1)
-            )
-
-            call.respond(HttpStatusCode.OK, newGraph.toGraphDto())
-
-        }
-
         post("/saveGraph") {
             val newGraph = call.receive<GraphDto>()
 
@@ -82,7 +49,9 @@ fun Application.graphRouting() {
 
         post("/execute") {
 
-            val searchGraph = call.receive<QueryExecute>().query.toGraphData()
+            val queryDto = call.receive<QueryExecute>().query
+
+            val searchGraph = queryDto.toGraphData()
 
             val graph = project.graphService.query(searchGraph)
 

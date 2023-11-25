@@ -14,7 +14,7 @@ const NodeInfo = () => {
     console.log("nodeInfoId", nodeInfoId)
     console.log("listNodes", listNodes)
 
-    const nodeInfo = listNodes.find((it) => it.id == nodeInfoId)
+    const nodeInfo = listNodes.find((node) => node.id == nodeInfoId)
     console.log("nodeInfo:", nodeInfo)
 
     return (
@@ -27,7 +27,7 @@ const NodeInfo = () => {
             <PropertyInfoInput onClick={(key, value) => {
 
                 const property: IProperty = {
-                    id: Math.random() * 1000,
+                    id: (Math.random() * 1000).toString(),
                     label: key,
                     value: value
                 }

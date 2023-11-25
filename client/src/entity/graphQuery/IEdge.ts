@@ -1,7 +1,7 @@
 
 export interface IEdge {
-    id: number
+    id: string
     label: string
-    from: number
-    to: number
+    from: string
+    to: string
 }

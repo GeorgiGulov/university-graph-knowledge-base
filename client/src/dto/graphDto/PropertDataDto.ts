@@ -1,5 +1,6 @@
 
 export interface PropertyDataDto {
-    label: string,
+    id: string
+    label: string
     value: string
 }

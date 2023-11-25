@@ -2,7 +2,7 @@ import {IProperty} from "./IProperty";
 
 
 export interface INode {
-    id: number
+    id: string
     label: string,
     property: IProperty[]
 }

@@ -1,5 +1,6 @@
 
 export interface PropertyQueryDto {
-    label: string,
+    id: string
+    label: string
     value: string
 }
