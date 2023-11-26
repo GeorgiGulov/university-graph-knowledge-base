@@ -44,7 +44,6 @@ const Graph = () => {
     const [getQuery] = queryApi.useFetchGraphQueryMutation()
 
 
-
     useEffect(() => {
 
         console.log("useEffectOnce")
@@ -94,9 +93,11 @@ const Graph = () => {
                 width: "600px",
                 height: "600px",
                 nodes: {
-                    shape: 'dot',
+                    shape: 'circle',
+                    mass: 2,
                 },
                 edges: {
+                    selectionWidth: 3,
                     font: {
                         align: "top"
                     },
@@ -243,7 +244,7 @@ const Graph = () => {
                         const nodeId: string = params.nodes[0]
                         const edgesId: string[] = params.edges
 
-                        edgesId.forEach((edgeId)=>{
+                        edgesId.forEach((edgeId) => {
                             dispatch(deleteEdge(edgeId))
                         })
                         dispatch(deleteNode(nodeId))
@@ -271,8 +272,7 @@ const Graph = () => {
 
             <MyInput placeholder={"Имя вершины"} value={labelElement} onChange={(str) => {
                 setLabelElement(str)
-            }
-            }/>
+            }}/>
 
 
             <MyButton description={"Выполнить запрос"} onClick={async () => {
@@ -330,20 +330,20 @@ const Graph = () => {
                 let graphDto: GraphDataDto | null = null
 
                 try {
-                    const data  = await getQuery(query)
+                    const data = await getQuery(query)
 
                     // @ts-ignore
                     graphDto = data.data
-                }catch (e) {
+                } catch (e) {
                     console.log("Ошибка при получении ответа на графовый запрос")
                 }
 
-                if(graphDto != null) {
-                    const newNode = graphDto.nodes.map((node)=> {
+                if (graphDto != null) {
+                    const newNode = graphDto.nodes.map((node) => {
                         const nodeReducer: INode = {
                             id: node.id,
                             label: node.label,
-                            property: node.properties.map((propertyDto)=>{
+                            property: node.properties.map((propertyDto) => {
                                 const property: IProperty = {
                                     id: propertyDto.id,
                                     label: propertyDto.label,
@@ -355,7 +355,7 @@ const Graph = () => {
                         return nodeReducer
                     })
 
-                    const newEdge = graphDto.edges.map((edge)=> {
+                    const newEdge = graphDto.edges.map((edge) => {
                         const edgeReducer: IEdge = {
                             id: edge.id,
                             label: edge.label,
@@ -374,7 +374,7 @@ const Graph = () => {
                         edges: newEdge,
                     }
 
-                    if(network != null) {
+                    if (network != null) {
 
                         const nodes = new DataSet([
                             ...newNode
@@ -393,7 +393,6 @@ const Graph = () => {
                         newNetwork.setData(data)
                         dispatch(setGraph(graph))
                     }
-
 
 
                 }

@@ -13,9 +13,6 @@ const NodeInfo = () => {
 
     const dispatch = useAppDispatch()
 
-    console.log("nodeInfoId", nodeInfoId)
-    console.log("listNodes", listNodes)
-
     const nodeInfo = listNodes.find((node) => node.id == nodeInfoId)
     console.log("nodeInfo:", nodeInfo)
 
