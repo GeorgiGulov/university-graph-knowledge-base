@@ -15,12 +15,12 @@ export interface QueryExecute {
 export const queryApi = createApi({
     reducerPath: "queryApi",
     baseQuery: fetchBaseQuery({
-        baseUrl: "http://127.0.0.1:8080"
+        baseUrl: "http://localhost:8080"
     }),
     endpoints: (build) => ({
         fetchGraphQuery: build.mutation<GraphDataDto, QueryExecute>({
             query: (queryGraph) => ({
-                url: "/execute",
+                url: "/executeQuery",
                 method: "POST",
                 body: queryGraph
             })
